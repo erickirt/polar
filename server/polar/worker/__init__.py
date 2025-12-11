@@ -142,9 +142,6 @@ class LogfireMiddleware(dramatiq.Middleware):
         if logfire_stack is not None:
             logfire_stack.close()
 
-        # THEORY: force flush logfire events after each task to avoid memory bursts
-        logfire.force_flush()
-
     def after_skip_message(
         self, broker: dramatiq.Broker, message: dramatiq.Message[Any]
     ) -> None:
@@ -191,7 +188,6 @@ broker.add_middleware(
     )
 )
 broker.add_middleware(HealthMiddleware())
-broker.add_middleware(AsyncIOMiddleware())
 broker.add_middleware(middleware.CurrentMessage())
 broker.add_middleware(MaxRetriesMiddleware())
 broker.add_middleware(SQLAlchemyMiddleware())
@@ -200,6 +196,7 @@ broker.add_middleware(scheduler_middleware)
 broker.add_middleware(LogfireMiddleware())
 broker.add_middleware(LogContextMiddleware())
 broker.add_middleware(PrometheusMiddleware())
+broker.add_middleware(AsyncIOMiddleware())
 dramatiq.set_broker(broker)
 dramatiq.set_encoder(JSONEncoder())
 
